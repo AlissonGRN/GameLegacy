@@ -16,7 +16,7 @@ CREATE TABLE Jogo (
     ID_Jogo SERIAL PRIMARY KEY,
     Titulo VARCHAR(200) NOT NULL,
     Ano INT,
-    ID_Console INT NOT NULL,
+    ID_Console INT NOT NULL REFERENCES Console(ID_Console) ON DELETE CASCADE,
     Preco_Diaria DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (ID_Console) REFERENCES Console(ID_Console)
 );
