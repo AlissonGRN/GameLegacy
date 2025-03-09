@@ -2,23 +2,27 @@
 import streamlit as st
 from database.connection import conectar
 
+# Configuração da página do Streamlit
 st.set_page_config(page_title="GameLegacy 🕹️", layout="centered")
 
-# Sidebar para configurações
+# Sidebar para configurações do banco de dados
 with st.sidebar:
     st.header("Configurações do Banco")
+    
+    # Botão para criar tabelas no banco de dados
     if st.button("Criar Tabelas (Schema)"):
         from database.connection import criar_tabelas
         criar_tabelas()
         st.success("Tabelas criadas!")
 
+    # Botão para popular o banco de dados com dados iniciais
     if st.button("Popular Dados Iniciais (Seed)"):
         conn = conectar()
         if conn:
             try:
                 cur = conn.cursor()
                 with open('seed.sql', 'r') as f:
-                    cur.execute(f.read())
+                    cur.execute(f.read())  # Executa o script SQL para inserir dados iniciais
                 conn.commit()
                 st.success("Dados iniciais inseridos!")
             except Exception as e:
@@ -26,13 +30,13 @@ with st.sidebar:
             finally:
                 conn.close()
 
-# Função para executar queries genéricas
+# Função para executar queries genéricas no banco de dados
 def executar_query(query, params=None):
     conn = conectar()
     if conn:
         try:
             cur = conn.cursor()
-            cur.execute(query, params or ())
+            cur.execute(query, params or ())  # Executa a query com parâmetros opcionais
             conn.commit()
             return True
         except Exception as e:
@@ -42,7 +46,7 @@ def executar_query(query, params=None):
             conn.close()
     return False
 
-# Página principal
+# Página principal da aplicação
 st.title("GameLegacy 🎮")
 
 # Abas para diferentes funcionalidades
@@ -55,7 +59,7 @@ with tab1:
     # Controles de Ordenação
     ordem = st.radio("Ordenar por:", ["Mais Recente", "Mais Antigo"], horizontal=True)
 
-    # Formulário de Cadastro
+    # Formulário de Cadastro de Consoles
     with st.expander("Cadastrar Novo Console"):
         with st.form("console_form"):
             modelo = st.text_input("Modelo (ex: NES)")
@@ -68,14 +72,14 @@ with tab1:
                     st.success("Console cadastrado!")
                     st.rerun()
 
-    # Lista de Consoles
+    # Lista de Consoles Cadastrados
     st.subheader("Consoles Cadastrados")
     conn = conectar()
     if conn:
         try:
             cur = conn.cursor()
             order = "DESC" if ordem == "Mais Recente" else "ASC"
-            cur.execute(f"SELECT * FROM Console ORDER BY ID_Console {order}")
+            cur.execute(f"SELECT * FROM Console ORDER BY ID_Console {order}")  # Consulta para listar consoles ordenados
             consoles = cur.fetchall()
 
             # Exibir cada console
@@ -101,7 +105,7 @@ with tab1:
                             try:
                                 cur_check = conn_check.cursor()
                                 cur_check.execute(
-                                    "SELECT COUNT(*) FROM Jogo WHERE ID_Console = %s",
+                                    "SELECT COUNT(*) FROM Jogo WHERE ID_Console = %s",  # Verifica se há jogos vinculados ao console
                                     (id_console,)
                                 )
                                 total_jogos = cur_check.fetchone()[0]
@@ -110,7 +114,7 @@ with tab1:
                                     st.error("Não é possível excluir: existem jogos vinculados!")
                                 else:
                                     if executar_query(
-                                        "DELETE FROM Console WHERE ID_Console = %s", 
+                                        "DELETE FROM Console WHERE ID_Console = %s",  # Exclui o console se não houver jogos vinculados
                                         (id_console,)
                                     ):
                                         st.success("Console excluído!")
@@ -132,7 +136,7 @@ with tab1:
                         with col_salvar:
                             if st.form_submit_button("💾 Salvar"):
                                 if executar_query(
-                                    "UPDATE Console SET Modelo = %s, Ano_Lancamento = %s WHERE ID_Console = %s",
+                                    "UPDATE Console SET Modelo = %s, Ano_Lancamento = %s WHERE ID_Console = %s",  # Atualiza o console
                                     (novo_modelo, novo_ano, id_console)
                                 ):
                                     del st.session_state['editando_console']
@@ -158,7 +162,7 @@ with tab2:
     if conn:
         try:
             consoles = conn.cursor()
-            consoles.execute("SELECT ID_Console, Modelo FROM Console")
+            consoles.execute("SELECT ID_Console, Modelo FROM Console")  # Consulta para listar consoles disponíveis
             resultados = consoles.fetchall()
             opcoes_consoles = {row[1]: row[0] for row in resultados}  # Formato: {"NES": 1, "SNES": 2}
         except Exception as e:
@@ -182,7 +186,7 @@ with tab2:
                 id_console = opcoes_consoles[console_selecionado]
                 if executar_query(
                     """INSERT INTO Jogo (Titulo, Ano, ID_Console, Preco_Diaria)
-                       VALUES (%s, %s, %s, %s)""",
+                       VALUES (%s, %s, %s, %s)""",  # Insere um novo jogo no banco
                     (titulo, ano, id_console, preco)
                 ):
                     st.success("Jogo cadastrado!")
@@ -196,12 +200,11 @@ with tab3:
         email = st.text_input("Email")
         if st.form_submit_button("Salvar"):
             if executar_query(
-                "INSERT INTO Cliente (Nome, Telefone, Email) VALUES (%s, %s, %s)",
+                "INSERT INTO Cliente (Nome, Telefone, Email) VALUES (%s, %s, %s)",  # Insere um novo cliente
                 (nome, telefone, email)
             ):
                 st.success("Cliente cadastrado!")
 
-# --- ABA 4: Realizar Aluguel ---
 # --- ABA 4: Realizar Aluguel ---
 with tab4:
     st.subheader("Realizar Aluguel")
@@ -216,17 +219,17 @@ with tab4:
         try:
             # Buscar clientes
             clientes = conn.cursor()
-            clientes.execute("SELECT ID_Cliente, Nome FROM Cliente")
+            clientes.execute("SELECT ID_Cliente, Nome FROM Cliente")  # Consulta para listar clientes
             opcoes_clientes = {row[1]: row[0] for row in clientes.fetchall()}
 
             # Buscar jogos
             jogos = conn.cursor()
-            jogos.execute("SELECT ID_Jogo, Titulo FROM Jogo")
+            jogos.execute("SELECT ID_Jogo, Titulo FROM Jogo")  # Consulta para listar jogos
             opcoes_jogos = {row[1]: row[0] for row in jogos.fetchall()}
 
             # Buscar consoles
             consoles = conn.cursor()
-            consoles.execute("SELECT ID_Console, Modelo FROM Console")
+            consoles.execute("SELECT ID_Console, Modelo FROM Console")  # Consulta para listar consoles
             opcoes_consoles = {row[1]: row[0] for row in consoles.fetchall()}
 
         except Exception as e:
@@ -255,7 +258,7 @@ with tab4:
                 if id_jogo or id_console:
                     if executar_query(
                         """INSERT INTO Aluguel (ID_Cliente, ID_Jogo, ID_Console)
-                           VALUES (%s, %s, %s)""",
+                           VALUES (%s, %s, %s)""",  # Insere um novo aluguel
                         (id_cliente, id_jogo, id_console)
                     ):
                         st.success("Aluguel registrado!")
@@ -281,7 +284,7 @@ with tab5:
                 LEFT JOIN Jogo J ON A.ID_Jogo = J.ID_Jogo
                 LEFT JOIN Console CO ON A.ID_Console = CO.ID_Console
                 JOIN Cliente C ON A.ID_Cliente = C.ID_Cliente
-                WHERE A.Data_Devolucao IS NULL
+                WHERE A.Data_Devolucao IS NULL  # Consulta para listar aluguéis ativos
             """)
             # Formata: {"ID - Nome (Item)": ID_Aluguel}
             opcoes_alugueis = {
@@ -301,7 +304,7 @@ with tab5:
             if st.form_submit_button("Registrar Devolução"):
                 id_aluguel = opcoes_alugueis[aluguel]
                 if executar_query(
-                    "UPDATE Aluguel SET Data_Devolucao = CURRENT_DATE WHERE ID_Aluguel = %s",
+                    "UPDATE Aluguel SET Data_Devolucao = CURRENT_DATE WHERE ID_Aluguel = %s",  # Atualiza a data de devolução
                     (id_aluguel,)
                 ):
                     st.success("Devolução registrada!")
