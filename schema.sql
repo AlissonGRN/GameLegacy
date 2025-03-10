@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS Cliente;
 DROP TABLE IF EXISTS Console;
 
 -- Criação da tabela Console
+
 CREATE TABLE Console (
     ID_Console SERIAL PRIMARY KEY,
     Modelo VARCHAR(50) NOT NULL,
@@ -12,6 +13,7 @@ CREATE TABLE Console (
 );
 
 -- Criação da tabela Jogo
+
 CREATE TABLE Jogo (
     ID_Jogo SERIAL PRIMARY KEY,
     Titulo VARCHAR(200) NOT NULL,
@@ -22,6 +24,7 @@ CREATE TABLE Jogo (
 );
 
 -- Criação da tabela Cliente
+
 CREATE TABLE Cliente (
     ID_Cliente SERIAL PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
@@ -30,6 +33,7 @@ CREATE TABLE Cliente (
 );
 
 -- Criação da tabela Aluguel
+
 CREATE TABLE Aluguel (
     ID_Aluguel SERIAL PRIMARY KEY,
     ID_Cliente INT NOT NULL,
@@ -40,6 +44,5 @@ CREATE TABLE Aluguel (
     FOREIGN KEY (ID_Cliente) REFERENCES Cliente(ID_Cliente),
     FOREIGN KEY (ID_Jogo) REFERENCES Jogo(ID_Jogo),
     FOREIGN KEY (ID_Console) REFERENCES Console(ID_Console),
-    -- Garante que o aluguel é de um jogo OU um console
     CHECK (ID_Jogo IS NOT NULL OR ID_Console IS NOT NULL)
 );

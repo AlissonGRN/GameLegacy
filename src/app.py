@@ -284,7 +284,7 @@ with tab5:
                 LEFT JOIN Jogo J ON A.ID_Jogo = J.ID_Jogo
                 LEFT JOIN Console CO ON A.ID_Console = CO.ID_Console
                 JOIN Cliente C ON A.ID_Cliente = C.ID_Cliente
-                WHERE A.Data_Devolucao IS NULL  # Consulta para listar aluguéis ativos
+                WHERE A.Data_Devolucao IS NULL
             """)
             # Formata: {"ID - Nome (Item)": ID_Aluguel}
             opcoes_alugueis = {
