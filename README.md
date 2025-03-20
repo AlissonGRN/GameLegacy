@@ -1,4 +1,4 @@
-# GameLegacy 🕹️ - Sistema de Gerenciamento de Aluguel de Jogos
+# GameLegacy 🕹️ - Sistema de Gerenciamento de Aluguel de Jogos e Consoles Retro
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.29.0-FF4B4B)](https://streamlit.io/)
